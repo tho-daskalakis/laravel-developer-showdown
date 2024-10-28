@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ProcessUserUpdate;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -52,7 +53,12 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        // Update the user and queue the change for the provider's API
+        // Update the user data.
+        $userData = $request->only(['name', 'email', 'timezone']);
+        $user->update($userData);
+
+        // Queue the update job for a batch update.
+        ProcessUserUpdate::dispatch($user);
     }
 
     /**
